@@ -1,59 +1,73 @@
 **English** | [繁體中文](README.zh-TW.md)
 
-# Factory Inventory Scanning System (Prototype)
+# Warehouse Authentication and Device Authorization Prototype
 
-A prototype of an internal inventory-scanning system for factory use. Workers sign in on a phone or tablet and scan barcodes to record incoming goods. Each account can only be used on the device it is bound to.
+A warehouse-system prototype based on a factory-management requirement. It implements employee registration, login, and account binding to a browser UUID. Development of the planned barcode-scanning workflow was paused after requirements changed.
 
-> **Status: Prototype, development paused.** Sign-up, login and device binding are complete and tested. The back-end API for barcode scanning is not finished yet (paused after a change in requirements).
+> **Status: Prototype, development paused.**
+> Authentication still requires improvements, and the application is not ready for production use.
 
 ## Tech Stack
 
 | Category | Technologies |
-|---|---|
-| Back end | Node.js, Express 5 (MVC architecture) |
-| Front end | EJS server-side rendering (SSR), HTML / CSS, vanilla JavaScript (fetch) |
-| Database | PostgreSQL (`pg` connection pool, parameterized queries) |
-| Security | Random salt + HMAC-SHA512 password hashing, httpOnly cookies, device UUID binding |
-| Deployment testing | Nginx reverse proxy, PM2 / NSSM (Windows service) |
+| --- | --- |
+| Backend | JavaScript, Node.js, Express 5 (Routes / Controllers / Models layers) |
+| Page rendering | EJS server-side rendering, HTML, CSS |
+| Browser-side code | Vanilla JavaScript, localStorage |
+| Database | PostgreSQL, pg connection pool, parameterized queries |
+| Password handling | Random salt with HMAC-SHA512 |
 
 ## Features
 
-- **Employee sign-up / login**: Employee ID is the username. Passwords are hashed with a random salt + HMAC-SHA512 before being stored; plain-text passwords are never saved.
-- **Device binding**: The front end generates a UUID for each device. It is bound to the account on first login, and logins from any other device are rejected.
-- **Login protection**: Visiting the home page without logging in redirects to the login page. Logging out clears the cookie.
-- **Device detection**: Detects the operating system and device model using Client Hints + UAParser.js.
-- **Barcode scanning UI**: The input box is auto-focused. When the scanner sends Enter, the data is submitted with fetch (back-end API in progress).
+- **Employee registration and login**: Uses employee IDs as account identifiers. Passwords are hashed using a random salt with HMAC-SHA512 and stored in `salt$hash` format. Plain-text passwords are not stored.
+- **Browser UUID binding and comparison**: The browser generates a UUID and stores it in localStorage. It is associated with the account during registration and checked at login. Accounts without a bound UUID can be bound during login. The UUID can be modified or cleared and does not prove physical device identity.
+- **Basic login-state handling**: The home page checks whether a login cookie exists to determine whether to display the page or redirect to login. Logout clears the login identifier cookie. Full login-state validation still requires improvement.
+- **Device information detection**: Uses Client Hints and UAParser.js to infer operating-system and device information. Some display logic still needs correction.
 
 ## Project Structure
 
-```
-├── server.js            # Entry point: middleware, routes, server startup
-├── config/              # Database connection (reads settings from .env)
-├── routes/              # Routes
-├── controllers/         # Business logic (login, sign-up, pages)
-├── models/              # SQL access
-├── views/               # EJS pages (login, sign-up, home)
-├── public/              # CSS and front-end JavaScript
-└── schema.sql           # Table definitions (users, inventory_logs)
+```text
+├── server.js        # Express configuration, route mounting, and server startup
+├── config/          # PostgreSQL connection settings
+├── routes/          # Routes
+├── controllers/     # Registration, login, and page logic
+├── models/          # Database queries
+├── middleware/      # Middleware (planned)
+├── views/           # EJS page templates
+├── public/          # CSS and browser-side JavaScript
+└── schema.sql       # Database schema
 ```
 
 ## Getting Started
 
-1. Install [Node.js](https://nodejs.org/) and PostgreSQL.
-2. Create a database named `node_project_demo2`, then run `schema.sql` to create the tables.
-3. Copy `.env.example` to `.env` and fill in your database password (and any other settings you want to change).
-4. Install dependencies and start the server:
+### 1. Prepare the environment and database
 
-   ```bash
-   npm install
-   npm run dev
-   ```
+Install Node.js 18 or later and PostgreSQL.
 
-5. Open `http://localhost:3000`.
-   - Phones on the same network can connect at `http://<your-computer's-IP>:3000` (port 3000 must be allowed through the firewall).
+Create a new development database, such as `node_project_demo2`, and execute `schema.sql` against that database.
 
-## To Do
+### 2. Configure environment variables
 
-- [ ] Barcode scanning API (`POST /api/inventory`) that writes to `inventory_logs`
-- [ ] Move the login check into a shared middleware
-- [ ] Return errors as JSON and display them consistently on the front end
+Copy `.env.example` to `.env` and enter your local PostgreSQL settings.
+
+Do not commit a `.env` file containing real credentials to Git.
+
+### 3. Install dependencies and start the application
+
+Run the following commands in the project directory containing `package.json`:
+
+```bash
+npm install
+npm run dev
+```
+
+### 4. Open the application
+
+Open http://localhost:3000/auth/login, register a development account, and log in using the same browser.
+
+## Future Improvements
+
+- Implement server-side sessions and shared authentication middleware to improve login-state validation
+- Migrate to a dedicated password-hashing algorithm, such as Argon2id
+- Complete server-side input validation and verify UUID-binding results
+- Complete the barcode-scanning interface and inventory API to write records to `inventory_logs`
