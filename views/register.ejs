@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新員工註冊 - 生產線系統</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>📝 新員工註冊</h2>
+        
+        <form action="/auth/register" method="POST" onsubmit="return validatePassword()">
+            
+            <div class="input-group">
+                <label for="username">員工編號</label>
+                <input type="text" id="employee_id" name="employee_id" placeholder="例: P12345" required>
+            </div>
+            
+            <div class="input-group">
+                <label>員工姓名</label>
+                <input type="text" name="username" placeholder="例: 王小明" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">設定密碼</label>
+                <input type="password" id="password" name="password" placeholder="請設定密碼" required>
+            </div>
+
+            <div class="input-group">
+                <label for="confirm_password">確認密碼</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="請再次輸入密碼" required>
+            </div>
+
+            <input type="hidden" id="uuid" name="uuid">
+            <input type="hidden" id="os_info" name="os_info">
+            <input type="hidden" id="device_model" name="device_model">
+
+            <button type="submit" class="btn-primary">確認註冊</button>
+        </form>
+
+        <p class="switch-page">
+            已經有帳號了？ <a href="/auth/login">返回登入</a>
+        </p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js"></script>
+    
+    <script src="/js/auth.js" defer></script>
+
+    <script>
+        function validatePassword() {
+            // 抓取兩個密碼框的值
+            const pwd = document.getElementById("password").value;
+            const confirmPwd = document.getElementById("confirm_password").value;
+
+            // 比對
+            if (pwd !== confirmPwd) {
+                alert("❌ 兩次密碼輸入不一致，請重新輸入！");
+                return false; // 回傳 false，表單就不會送出
+            }
+            return true; // 回傳 true，表單才會送去後端
+        }
+    </script>
+</body>
+</html>

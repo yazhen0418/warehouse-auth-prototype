@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>員工登入 - 生產線系統</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>🔐 登入</h2>
+        
+        <form action="/auth/login" method="POST">
+            <div class="input-group">
+                <label for="employee_id">員工編號</label>
+                <input type="text" id="employee_id" name="employee_id" autocomplete="employee_id" placeholder="例: P12345" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">密碼</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <input type="hidden" id="uuid" name="uuid">
+            <input type="hidden" id="os_info" name="os_info">
+            <input type="hidden" id="device_model" name="device_model">
+
+            <button type="submit" class="btn-primary">登入系統</button>
+        </form>
+
+        <p class="switch-page">
+            還沒有帳號？ <a href="/auth/register">點此註冊</a>
+        </p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js"></script>
+    
+    <script src="/js/auth.js" defer></script>
+</body>
+</html>
